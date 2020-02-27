@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "786544212364",
+    "firebase_url": "https://captone1-d328d.firebaseio.com",
+    "project_id": "captone1-d328d",
+    "storage_bucket": "captone1-d328d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786544212364:android:821ab2c7882be60e93bea9",
+        "android_client_info": {
+          "package_name": "com.example.firebase_mlvision_example"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "786544212364-l2l7rikqthbpci3l9e72gvg0smjp6ife.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKLUy_dlRgQjn1IaHRKmvf_RGbb0AnyhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "786544212364-l2l7rikqthbpci3l9e72gvg0smjp6ife.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786544212364:android:c3bc067edd28ba2b93bea9",
+        "android_client_info": {
+          "package_name": "com.nguyenhai.dtu.captone.flutter_green_waste_bin_ticker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "786544212364-l2l7rikqthbpci3l9e72gvg0smjp6ife.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKLUy_dlRgQjn1IaHRKmvf_RGbb0AnyhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "786544212364-l2l7rikqthbpci3l9e72gvg0smjp6ife.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
