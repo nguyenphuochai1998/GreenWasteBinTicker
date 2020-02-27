@@ -1,8 +1,16 @@
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+
+
+import 'BottomShapeClipper.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -14,11 +22,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool themeSwitch = false;
+  String _nameTopBaner = "";
 
   dynamic themeAppBar() {
-    return Color(0xffb3ff66);
+    return Colors.lightGreen;
   }
   dynamic themeHome(){
+    return Color(0xff66ccff);
+  }
+  dynamic themeTag(){
     return Colors.grey[850];
   }
 
@@ -30,24 +42,45 @@ class _HomePageState extends State<HomePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Color(0xFFf2f2f2),
+        backgroundColor: Color(0xefffffff),
+
         floatingActionButton: FloatingActionButton(
           onPressed: (){
             _get();
           },
         ),
-
-        appBar: AppBar(
-          backgroundColor: themeAppBar(),
-        ),
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              Container(
-                height: _size.height*(1/3),
-                child: Text("top baner"),
+              Stack(
+                children: <Widget>[
+                  ClipPath(
+                    clipper: BottomShapeClipper(),
+                    child: Container(
+                      height: _size.height * 0.5,
+                      color: themeHome(),
+                    ),
+
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: _size.height*0.2),
+                    child: TopBanerName(),
+                  ),
+
+                  Padding(
+                    padding: EdgeInsets.only(top: _size.height*0.25),
+                    child: Container(
+                      height: _size.height*(1/3),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: TopBaner(size: Size(_size.width, _size.height*(1/3))),
+                      ),
+                    ),
+                  ),
+                  TagNameUser(),
+                ],
               ),
-              StreamBuilder<QuerySnapshot>(
+              StreamBuilder<QuerySnapshot>(      // cac phan va cac tag
                 stream: Firestore.instance.collection("GiftCatalog").snapshots(),
                 builder: (context,snapshot){
                   if(!snapshot.hasData) return null;
@@ -55,20 +88,21 @@ class _HomePageState extends State<HomePage> {
                     children: <Widget>[
                       for(final item in snapshot.data.documents) Container(
                         height: _size.height/2,
-                        child: Column(
+                        child: Column( // ten cua cai loai qua.....
                           children: <Widget>[
                             Container(
                               height: (_size.height/2)/5,
                               child: Row(
                                  mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
-                                  Text(
-                                    item["Name"] + item["Id"],
-                                    style: TextStyle(
-                                      color: themeHome(),
-                                      fontSize: 20,
-                                      fontStyle: FontStyle.italic
-
+                                  Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Text(
+                                      item["Name"] + item["Id"],
+                                      style: GoogleFonts.robotoSlab(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500
+                                      ),
                                     ),
                                   )
                                 ],
@@ -184,17 +218,105 @@ class _HomePageState extends State<HomePage> {
     );
   }
   Widget TopBaner({Size size}){
-    return Container(
-      width: size.width,
-      height: size.height,
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection("Gift").orderBy("Quantity",descending:true).limit(4).snapshots(),
+      builder: (context,snapshot){
+        if(!snapshot.hasData) return Container();
+        return  new Swiper(
+          autoplay: true,
+          itemBuilder: (BuildContext context, int index) {
+            return ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              child: Image(
+                fit: BoxFit.fill,
+                image:  NetworkImage(
+                    snapshot.data.documents[index]["img"]
+                ),
+              ),
+            );
+          },
+          itemCount: snapshot.data.documents.length,
+          itemWidth: 300.0,
+          layout: SwiperLayout.STACK,
+          pagination: SwiperPagination(
+            alignment: Alignment.bottomCenter
+          ),
+          onIndexChanged: (index){
+            setState(() {
+              _nameTopBaner = snapshot.data.documents[index]["Name"];
+            });
+          },
+        );
+      },
     );
   }
-  String Name = "Vé xem phim 2d rạp starlight"; String GCID = "DG";
-  String img = "https://starlight.vn/Areas/Admin/Content/Fileuploads/images/sukien/H%E1%BA%A0NG%20M%E1%BB%A4C%20KHAI%20TR%C6%AF%C6%A0NG%20GIA%20LAI-08-1.jpg";
+  Widget TagNameUser(){
+    return Stack(
+      children: <Widget>[
+        Container(
+          alignment: Alignment.topLeft,
+          child: Padding(
+            padding: EdgeInsets.all(21),
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.supervised_user_circle,
+                  size: 70,
+                  color: Colors.white,
+                ),
+                Column(
+                  //ten nguoi dung
+                  children: <Widget>[
+                    Container(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                          "Tên người dùng",
+                        style: GoogleFonts.cuprum(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400
+                        ),
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        "0 Điểm",
+                        style: GoogleFonts.cuprum(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600
+                        ),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          )
+        )
+      ],
+    );
+  }
+  Widget TopBanerName(){
+    return Container(
+      alignment: Alignment.center,
+      child: Text(_nameTopBaner,
+        style: GoogleFonts.lora(
+          fontSize: 20,
+          color: Colors.white
+        ),
+
+      ),
+    );
+  }
+  String Name = "Thẻ đổi 1 lon nước Monster Energy"; String GCID = "DDG";
+  String img = "https://lh3.googleusercontent.com/proxy/57rkAF_4JMSj13QmZ-sQZI-Sy2tDaYzRUctUzvj9XAr0DxaXir0RWJHPocQTLPp4IdjpBI2VgqcyXzq5PFomntGoHpgBRlzz0GhGluBnwt5UF-vg3A6AtZ5GzRJ_iO315VReHP1MRrwve1PUwe227ueJ2LMT5g";
+
   Timestamp ed=Timestamp.now(),sd=Timestamp.now();
   void _get(){
     print("ok");
     Firestore.instance.collection('Gift').document()
-        .setData({ 'Name': Name, 'GCID': GCID,"img":img ,"ED":ed,"SD":sd});
+        .setData({ 'Name': Name, 'GCID': GCID,"img":img ,"ED":ed,"SD":sd,"Point":Random().nextInt(600),"Quantity":Random().nextInt(20)});
   }
 }
