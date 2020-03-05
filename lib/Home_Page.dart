@@ -1,12 +1,14 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_green_waste_bin_ticker/QRView.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 
 
@@ -23,6 +25,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool themeSwitch = false;
   String _nameTopBaner = "";
+  final _auth = FirebaseAuth.instance;
+  FirebaseUser _user;
+
 
   dynamic themeAppBar() {
     return Colors.lightGreen;
@@ -35,6 +40,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   int _counter = 0;
+  @override
+  void initState() {
+    _auth.currentUser().then((user){
+      setState(() {
+        _user = user;
+      });
+    });
+    print("${_user}");
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,13 +92,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  TagNameUser(),
+                  AppBar(),
                 ],
               ),
               StreamBuilder<QuerySnapshot>(      // cac phan va cac tag
                 stream: Firestore.instance.collection("GiftCatalog").snapshots(),
                 builder: (context,snapshot){
-                  if(!snapshot.hasData) return null;
+                  if(!snapshot.hasData) return Container();
                   return Column(
                     children: <Widget>[
                       for(final item in snapshot.data.documents) Container(
@@ -251,53 +266,85 @@ class _HomePageState extends State<HomePage> {
     );
   }
   Widget TagNameUser(){
-    return Stack(
-      children: <Widget>[
-        Container(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: EdgeInsets.all(21),
-            child: Row(
-              children: <Widget>[
-                Icon(
-                  Icons.supervised_user_circle,
-                  size: 70,
-                  color: Colors.white,
-                ),
-                Column(
+    return Container(
+        alignment: Alignment.topLeft,
+        child: Padding(
+          padding: EdgeInsets.all(21),
+          child: Row(
+            children: <Widget>[
+              _user.photoUrl==null?Icon(
+                Icons.supervised_user_circle,
+                size: 70,
+                color: Colors.white,
+              ):ClipOval(
+                child: Image.network(_user.photoUrl,width: 70,height: 70,fit: BoxFit.cover,),
+              ),
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: Column(
                   //ten nguoi dung
                   children: <Widget>[
                     Container(
                       alignment: Alignment.topLeft,
                       child: Text(
-                          "Tên người dùng",
-                        style: GoogleFonts.cuprum(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400
-                        ),
-                      ),
-                    ),
-                    Container(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "0 Điểm",
+                        _user.displayName,
                         style: GoogleFonts.cuprum(
                             fontSize: 20,
                             color: Colors.white,
-                            fontWeight: FontWeight.w600
+                            fontWeight: FontWeight.w400
                         ),
                       ),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(2, 10, 0, 10),
+                        child: StreamBuilder(
+                            stream:  Firestore.instance.collection('User').document(_user.uid).get().asStream(),
+                            builder: (BuildContext context, data){
+                              if(data.data == null){
+                                return Text("");
+                              }else{
+                                return Text(
+                                  "${data.data["Point"].toString()} Điểm",
+                                  style: GoogleFonts.cuprum(
+                                      fontSize: 20,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600
+                                  ),
+                                );
+                              }
+                            }
+                        )
                     )
                   ],
-                )
-              ],
-            ),
-          )
+                ),
+              )
+            ],
+          ),
         )
-      ],
     );
   }
+  Widget AppBar(){
+    return Container(
+      child: Row(
+        children: <Widget>[
+          TagNameUser(),
+          Container(
+            margin: EdgeInsets.only(left: 30),
+            alignment: Alignment.topRight,
+              child:FlatButton(
+            child: Image.asset("assets/icon/qrCode_icon.png", height: 70, width: 70,),
+                onPressed: _scanQr))
+        ],
+      ),
+    );
+  }
+
+  _scanQr(){
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>QRViewPage()));
+
+  }
+
+
   Widget TopBanerName(){
     return Container(
       alignment: Alignment.center,

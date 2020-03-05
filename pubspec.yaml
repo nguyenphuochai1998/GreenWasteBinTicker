@@ -27,6 +27,13 @@ dependencies:
   firebase_core: ^0.4.4
   cloud_firestore: ^0.13.3
   google_fonts: ^0.3.9
+  flutter_facebook_login: ^3.0.0
+  firebase_auth: ^0.15.5+2
+  flutter_auth_buttons: ^0.6.0
+  line_icons: ^0.2.0
+  qr_code_scanner: ^0.0.12
+
+
 
 
 
@@ -50,6 +57,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icon/user_icon.png
+    - assets/icon/qrCode_icon.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
